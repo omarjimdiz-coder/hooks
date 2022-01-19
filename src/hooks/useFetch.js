@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 
 const useFetch = (url) => {
+
+    const isMouted = useRef(true);
 
     const [state, setState] = useState({
         data: null,
@@ -10,17 +12,26 @@ const useFetch = (url) => {
     });
 
     useEffect(() => {
+        return () => {
+            isMouted.current = false;
+        }
+    }, []);
+
+    useEffect(() => {
         
         setState({data: null, loading:true, error: null})
         
         fetch(url)
             .then(resp => resp.json())
             .then(data => {
-                setState({
-                    loading: false,
-                    error: null,
-                    data
-                })
+
+                    if( isMouted.current){
+                        setState({
+                            loading: false,
+                            error: null,
+                            data
+                        })
+                    }
             });
 
     }, [url])
